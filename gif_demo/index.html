@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gif demo</title>
+    <style>
+        canvas {
+            border: 1px solid cyan;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-group">
+        <input class="upload-img-input" type="file" accept="image/*">
+        <input class="sence-caption" type="text" placeholder="输入贴图文字">
+        <button onclick="run()">制作</button>
+    </div>
+    <hr>
+    <div class="demo-upload-wrapper">
+        <img class="demo-upload-img" src="https://mdn.mozillademos.org/files/5397/rhino.jpg" alt="">
+    </div>
+
+    <div class="preview-area">
+        <img class="preview-img" src="" alt="">
+    </div>
+    <script src="/gif.js"></script>
+    <script src="/gif.worker.js"></script>
+    <script>
+        window.onload = function () {
+            var previewImg = document.querySelector(".preview-img");
+            var body = document.querySelector('body');
+            this.run = run;
+            function run() {
+                var
+                    message = document.querySelector('.sence-caption').value,
+                    file = document.querySelector('.upload-img-input').files[0];
+                var reader = new FileReader();
+                var canvas = document.createElement('canvas');
+                var context = canvas.getContext('2d');
+                var width = 300, height = 400;
+
+                reader.onload = function (e) {
+                    var img = document.querySelector('.demo-upload-img');
+                    img.src = e.target.result;
+                    img.onload = function () {
+                        canvas.width = width
+                        canvas.height = height
+                        context.drawImage(img, 0, 0);
+                        context.fillText(message, 0, 0);
+                        createGif(context, img.width, img.height);
+                        body.append(canvas)
+                    }
+
+                }
+                reader.readAsDataURL(file);
+            }
+
+            function createGif(context, width = 300, height = 300, delay = 200) {
+                var gif = new GIF({
+                    width: width,
+                    height: height
+                });
+                gif.addFrame(context, {
+                    delay: delay,
+                    copy: true
+                });
+                gif.on('finished', function (blob) {
+                    console.log(blob);
+                    previewImg.src = URL.createObjectURL(blob);
+                });
+                gif.render();
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>
