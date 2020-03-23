@@ -8,7 +8,14 @@
     <style>
         canvas {
             border: 1px solid cyan;
+            background-color: burlywood;
+            margin-bottom: 10px;
         }
+        .demo-upload-wrapper{
+            background-color: cadetblue;
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 
@@ -21,14 +28,14 @@
     </div>
     <hr>
     <div class="demo-upload-wrapper">
-        <img class="demo-upload-img" src="https://mdn.mozillademos.org/files/5397/rhino.jpg" alt="">
+        <img class="demo-upload-img" src="" alt="">
     </div>
 
     <div class="preview-area">
         <img class="preview-img" src="" alt="">
     </div>
-    <script src="/gif.js"></script>
-    <script src="/gif.worker.js"></script>
+    <script src="/gif_demo/gif.js"></script>
+    <script src="/gif_demo/gif.worker.js"></script>
     <script>
         window.onload = function () {
             var previewImg = document.querySelector(".preview-img");
@@ -41,16 +48,19 @@
                 var reader = new FileReader();
                 var canvas = document.createElement('canvas');
                 var context = canvas.getContext('2d');
-                var width = 300, height = 400;
 
                 reader.onload = function (e) {
                     var img = document.querySelector('.demo-upload-img');
                     img.src = e.target.result;
                     img.onload = function () {
-                        canvas.width = width
-                        canvas.height = height
+                        document.querySelector('.demo-upload-wrapper').style.width = img.width;
+                        canvas.width = img.width;
+                        canvas.height = img.height;
                         context.drawImage(img, 0, 0);
-                        context.fillText(message, 0, 0);
+                        context.font = "40px Arial";
+                        context.fillStyle = "red";
+                        context.textAlign = "center"
+                        context.fillText(message, img.width/2, img.height - 16);
                         createGif(context, img.width, img.height);
                         body.append(canvas)
                     }
