@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>html结构复用</title>
+</head>
+
+<body>
+    <div class="group-btn">
+
+    </div>
+    <div class="group-btn1">
+
+    </div>
+    <template>
+        <button>{{text}}</button>
+        <span>{{title}}</span>
+        <span>{{title}}</span>
+        <span>{{title}}</span>
+    </template>
+    <script>
+        ; !(function () {
+            let tpl = document.querySelector('template');
+            let data = { text: 1111, title: 'hello world' };
+            this.render = function (tpl, data) {
+                let tplHtml = tpl.innerHTML.split(/(>\s*<)/);
+                for (let i = 0, len = tplHtml.length; i < len; i++) {
+                    let regExp = /<.+>{{(.+)}}<\/.+>+/gi ;
+                    let arr = regExp.exec(tplHtml);
+
+                    // if (arr.toString() && data[arr[1]]) {
+                    //     var parseStr = tplHtml.replace(`{{${arr[1]}}}`, data[arr[1]]) || '';
+                    // }
+                }
+                console.log(tplHtml);
+            }
+            this.render(tpl, data);
+            // document.querySelector('.group-btn').innerHTML = tpl.innerHTML;
+            // document.querySelector('.group-btn1').innerHTML = tpl.innerHTML;
+        })()
+    </script>
+</body>
+
+</html>
