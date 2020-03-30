@@ -6,14 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gif demo</title>
     <style>
+        div {
+            margin: 0;
+        }
+
         canvas {
             border: 1px solid cyan;
             background-color: burlywood;
             margin-bottom: 10px;
         }
-        .demo-upload-wrapper{
+
+        .preview-area,.gif-wrapper {
+            width: 300px;
+        }
+
+        .demo-upload-wrapper {
+            width: 300px;
             background-color: cadetblue;
             margin-bottom: 10px;
+            margin-right: 10px;
+        }
+        .synthesis-img,
+        .demo-upload-img,
+        .preview-img {
+            display: block;
+            width: 100%;
+        }
+
+        .horizental-layer {
+            display: flex;
+        }
+
+        .tips-text {
+            font-size: 14px;
+            margin-right: 10px;
         }
 
     </style>
@@ -23,68 +49,106 @@
 
     <div class="form-group">
         <input class="upload-img-input" type="file" accept="image/*">
-        <input class="sence-caption" type="text" placeholder="输入贴图文字">
-        <button onclick="run()">制作</button>
+        <label class="tips-text">贴图文字</label><input class="sence-caption" type="text" placeholder="输入贴图文字">
+        <label class="tips-text">图片延迟</label><input class="sence-duration" type="text" placeholder="输入播放延迟">
+
+        <button onclick="run()">添加图片合成</button>
+        <button onclick="product()">生成</button>
     </div>
     <hr>
-    <div class="demo-upload-wrapper">
-        <img class="demo-upload-img" src="" alt="">
+    <div class="copy-area">
+        <div class="horizental-layer">
+            <div class="demo-upload-wrapper">
+                <img class="demo-upload-img" src="" alt="">
+            </div>
+
+            <div class="preview-area" data-width="300" data-height="200">
+                <img class="preview-img" src="" alt="">
+            </div>
+        </div>
     </div>
 
-    <div class="preview-area">
-        <img class="preview-img" src="" alt="">
+    <div class="gif-wrapper">
+        <img class="synthesis-img"></img>
     </div>
+
     <script src="/gif_demo/gif.js"></script>
     <script src="/gif_demo/gif.worker.js"></script>
     <script>
         window.onload = function () {
-            var previewImg = document.querySelector(".preview-img");
+            var count = 1;
+            var synthesis = document.querySelector(".synthesis-img");
+
+
             var body = document.querySelector('body');
+            var width = 300, height = 400;
+            var gif = new GIF({
+                width: width,
+                height: height
+            });
             this.run = run;
+            this.product = product;
             function run() {
+                var copyTpl = document.querySelectorAll(".copy-area")[0].children[0].cloneNode(true);
                 var
                     message = document.querySelector('.sence-caption').value,
-                    file = document.querySelector('.upload-img-input').files[0];
+                    file = document.querySelector('.upload-img-input').files[0],
+                    delay = document.querySelector('.sence-duration').value;
+
                 var reader = new FileReader();
                 var canvas = document.createElement('canvas');
                 var context = canvas.getContext('2d');
 
                 reader.onload = function (e) {
-                    var img = document.querySelector('.demo-upload-img');
+                    var copyContainer = document.querySelector('.copy-area');
+                    copyContainer.appendChild(copyTpl)
+                    var img = document.querySelectorAll('.demo-upload-img')[count];
                     img.src = e.target.result;
+                    var previewImg = document.querySelectorAll(".preview-img")[count];
+                    var gifPreview  = document.querySelector('.gif-wrapper');
                     img.onload = function () {
-                        document.querySelector('.demo-upload-wrapper').style.width = img.width;
+
                         canvas.width = img.width;
                         canvas.height = img.height;
-                        context.drawImage(img, 0, 0);
-                        context.font = "40px Arial";
-                        context.fillStyle = "red";
-                        context.textAlign = "center"
-                        context.fillText(message, img.width/2, img.height - 16);
-                        createGif(context, img.width, img.height);
-                        body.append(canvas)
-                    }
+                        gifPreview.width = img.width;
+                        gifPreview.height = img.height;
+                        previewImg.setAttribute('data-width',img.width);
+                        previewImg.setAttribute('data-height',img.height);
+                        context.drawImage(img, 0, 0, img.width, img.height);
 
+                        context.font = "28px Arial";
+                        context.fillStyle = "#fff";
+                        context.textAlign = "center";
+                        context.fillText(message, img.width / 2, img.height - 16);
+                        previewImg.src = canvas.toDataURL();
+                        addGif(context,delay)
+                        context.clearRect(0, 0, img.width, img.height);
+                        count += 1;
+                    }
                 }
                 reader.readAsDataURL(file);
             }
 
-            function createGif(context, width = 300, height = 300, delay = 200) {
-                var gif = new GIF({
-                    width: width,
-                    height: height
-                });
+            function addGif(context, delay = 2000) {
                 gif.addFrame(context, {
-                    delay: delay,
+                    delay:delay,
                     copy: true
                 });
-                gif.on('finished', function (blob) {
-                    console.log(blob);
-                    previewImg.src = URL.createObjectURL(blob);
-                });
-                gif.render();
             }
+
+            function createGif() {
+                gif.render();
+                gif.on('finished', function (blob) {
+                    synthesis.src = URL.createObjectURL(blob);
+                });
+            }
+            function product() {
+                createGif();
+            }
+
         }
+
+
 
 
     </script>
