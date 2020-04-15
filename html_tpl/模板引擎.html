@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+
+<body>
+    <style type="text/css">
+        textarea,
+        button,
+        div {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 30px;
+        }
+
+        textarea {
+            width: 500px;
+            height: 140px;
+        }
+
+        #container {
+            width: 220px;
+            height: 110px;
+            padding: 15px;
+            border: 1px dashed #CCC;
+        }
+    </style>
+    <textarea id="barretDemo">
+        <ul>
+            <% for(var i = 0,len = this.listData.length ; i < len; i++) {  %>  
+                    <li class="item-li"><% this.listData[i] %></li>
+            <% } %>
+        </ul>
+
+</textarea>
+    <button id="btn">输出</button>
+    <div id="container"></div>
+    <p>模板引擎原理：通过正则匹配到模板标记内容：标记内容包含条件语句、循环语句以及数据变量的值，而另外一部分是未标记模板字符串。模板字符串和数据变量可按照条件语句和循环语句的逻辑保存在一个数组中，通过执行字符串，得到保存在数组的内容，再join成字符串结果。
+        通过exec正则方法，可依次匹配，在exec的返回值中，可以通过index和已匹配的长度，获取未匹配的模板字符串，逻辑语句是不需要被保存在结果数组中的，所以需要构建一个可匹配逻辑语句的正则。</p>
+    <h3>需要完善的内容：</h3>
+    <ul>
+        <li>优化获取的模板代码</li>
+        <li>符号转义，输出原有html标签</li>
+        <li>代码缓存，如果一个模板会经常使用，可以将它用一个数组缓存在barretTpl闭包内</li>
+        <li>用户自己设置分隔符</li>
+    </ul>
+    <script>
+        var data = {
+            listData: ['121213', '12121212', '12121212']
+        };
+        var barretTpl = function (str, data) {
+
+            //获取元素
+            var element = document.getElementById(str);
+            if (element) {
+                //textarea或input则取value，其它情况取innerHTML
+                var html = /^(textarea|input)$/i.test(element.nodeName) ? element.value : element.innerHTML;
+                return tplEngine(html, data);
+            } else {
+                //是模板字符串，则生成一个函数
+                //如果直接传入字符串作为模板，则可能变化过多，因此不考虑缓存
+                return tplEngine(str, data);
+            }
+
+            function tplEngine(tpl, data, delimiter = '<%') {
+                console.log(tpl)
+                var reg = /<%([^%>]+)?%>/g,
+                    regOut = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g,
+                    code = 'var r=[];\n',
+                    cursor = 0;
+
+                var add = function (line, js) {
+                    js ? (code += line.match(regOut) ? line + '\n' : 'r.push(' + line + ');\n') :
+                        (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
+                    return add;
+                }
+                while (match = reg.exec(tpl)) {
+                    add(tpl.slice(cursor, match.index))(match[1], true);
+                    cursor = match.index + match[0].length;
+                }
+                add(tpl.substr(cursor, tpl.length - cursor));
+                code += 'return r.join("");';
+                console.log(code);
+                return new Function(code.replace(/[\r\t\n]/g, '')).apply(data);
+            };
+        };
+
+        document.getElementById("btn").onclick = function () {
+            document.getElementById("container").innerHTML = barretTpl("barretDemo", data);
+        }
+    </script>
+
+</body>
