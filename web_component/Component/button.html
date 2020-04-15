@@ -1,0 +1,121 @@
+<template id="btn">
+    <style>
+        :host {
+            --j-wave-shadow-color: #1890ff;
+        }
+
+        .j-btn {
+            position: relative;
+            line-height: 1.4999;
+            font-weight: 400;
+            display: inline-block;
+            white-space: nowrap;
+            text-align: center;
+            cursor: pointer;
+            transition: all .3s cubic-bezier(.645, .045, .355, 1);
+            user-select: none;
+            touch-action: manipulation;
+            height: 32px;
+            padding: 0 15px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #d9d9d9;
+        }
+
+        .j-btn::before {
+            content: "";
+            pointer-events: none;
+            transition: opacity 0.2s;
+            opacity: .35s;
+            border-radius: inherit;
+            background-color: #fff;
+            display: none;
+            z-index: 1;
+            position: absolute;
+            left: -1px;
+            bottom: -1px;
+            top: -1px;
+            right: -1px;
+        }
+
+        .j-btn::after {
+            position: absolute;
+            content: "";
+            pointer-events: none;
+            animation-fill-mode: forwards;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            display: block;
+            border-radius: inherit;
+            box-shadow: 0 0 0 0 var(--j-wave-shadow-color);
+            opacity: .2;
+            animation: fadeEffect 2s cubic-bezier(.08, .82, .17, 1), waveEffect .4s cubic-bezier(.08, .82, .17, 1);
+        }
+
+        button {
+            -webkit-appearance: button;
+            outline: 0;
+        }
+
+        .j-btn:not([disabled]):active {
+            outline: 0;
+            box-shadow: none;
+        }
+
+
+        .j-btn:not([disabled]):hover {
+            text-decoration: none;
+        }
+
+        [data-type="primary"]:focus,
+        [data-type="primary"]:hover {
+            color: #fff;
+            background-color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        [data-type="primary"]:active {
+            color: #fff;
+            background-color: #096dd9;
+            border-color: #096dd9;
+        }
+
+        [data-type="primary"] {
+            color: #fff;
+            background-color: #1890ff;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, .12);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, .045);
+        }
+
+        [data-type="danger"]:focus,
+        [data-type="danger"]:hover {
+            color: #fff;
+            background-color: #ff7875;
+            border-color: #ff7875;
+        }
+
+        [data-type="danger"]:active {
+            color: #fff;
+            background-color: #d9363e;
+            border-color: #d9363e;
+        }
+
+        [data-type="danger"] {
+            color: #fff;
+            background-color: #ff4d4f;
+            border-color: #ff4d4f;
+        }
+    </style>
+    <div>
+        <button data-type="primary" class="j-btn">
+            <slot name="btn"></slot>
+            <slot></slot>
+        </button>
+    </div>
+</template>
+
+<script>
+
+</script>

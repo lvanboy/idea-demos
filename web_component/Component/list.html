@@ -1,0 +1,30 @@
+<template id="list">
+    <style>
+        ul,
+        li {
+            margin: 0;
+            padding: 0;
+
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .item-li {
+            display: inline-block;
+            color: royalblue;
+            padding: 6px 10px;
+            border: 1px solid deepskyblue;
+        }
+    </style>
+
+    <div class="list-container">
+        <ul>
+            <% for(var i = 0,len = this.listData.length ; i < len; i++) { %>
+            <li class="item-li"><% this.listData[i] %></li>
+            <% } %>
+        </ul>
+    </div>
+
+</template>
