@@ -1,18 +1,22 @@
-var win = this;
+
+
 
 var JP = function (tagName, options) {
+    let jp = this;
+
     this.tagName = tagName;
     this.options = options;
-    this.options.root = this.options.root ? this.options.root : ''
-    this.jp = this;
-
-    this.data = this.options.data && this.options.data();
+    this.options.root = this.options.root ? this.options.root : '/Component'
+    this.data = this.options.data && this.options.data() || {};
+    this.doc = "";
     var component = this.options.filename || "index.html";
+
     this.supportsImports = function () {
         return 'import' in document.createElement('link');
     }
+
     this.handleError = function (e) {
-        console.error(e.message);
+        console.error("组件路径不存在!")
     }
     this.init = function (cb) {
         if (this.supportsImports()) {
@@ -25,17 +29,16 @@ var JP = function (tagName, options) {
         return this;
     }
     this.loadLink = function (cb) {
-        var link = document.createElement('link');
-        var componentName = `/${component}.html`;
-        var self = this;
-
+        let link = document.createElement('link');
+        let componentName = `/${component}.html`;
+        let self = this;
+        let content = null;
         link.setAttribute('rel', 'import');
         link.setAttribute('href', this.options.root + componentName);
         link.onload = function handleLoad(e) {
-            var content = document.querySelector(`[href *= "${componentName}"]`);
-
+            content = document.querySelector(`[href *= "${componentName}"]`);
             if (!!content) {
-                win.doc = content.import || "";
+                self.doc = content.import || "";
             } else {
                 console.error('当前引用组件不存在!');
             }
@@ -58,29 +61,61 @@ var JP = function (tagName, options) {
                 if (tplId !== 'template') {
                     tplId = `#${tplId}`;
                 }
-                var dom = win.doc.querySelector(tplId);
+
+                var dom = self.doc.querySelector(tplId);
                 var template = "";
                 if (dom) {
                     template = dom.content;
+                    self.template = template.querySelector(':not(style):not(script)');
                 } else {
                     console.error('template is not exist');
                     return;
                 }
-
+                //获取所有属性
+                self.mergeData.call(this);
                 const shadowRoot = this.attachShadow({ mode: "open" });
-
                 cb && await cb(this, template);
-
-                var page = self.render(self.escape2Html(template.querySelector(':not(style):not(script)').innerHTML), self.data)
-                var style = template.querySelector('style');
-                var js = template.querySelector('script');
-                shadowRoot.innerHTML = page
-                style && shadowRoot.appendChild(style)
-                js && shadowRoot.appendChild(js)
+                try {
+                    var page = self.render(self.escape2Html(self.template.innerHTML), self.data)
+                    var style = template.querySelector('style');
+                    var js = template.querySelector('script');
+                    shadowRoot.innerHTML = page
+                    style && shadowRoot.appendChild(style)
+                    js && shadowRoot.appendChild(js)
+                    console.log(`${self.tagName}自定义标签已注册!!`);
+                } catch (err) {
+                    console.error(err)
+                }
             }
 
         })
     }
+    this.mergeData = function () {
+        let attrs = "", eventName = "click";
+        var obj = {};
+        if (this.hasAttributes()) {
+            attrs = this.attributes;
+            for (let i = 0, len = attrs.length; i < len; i++) {
+                if (attrs[i].name.startsWith("@")) {
+                    if (jp.options.methods[attrs[i].value]) {
+                        eventName = attrs[i].name.slice(1);
+                        this.addEventListener(`${eventName}`, jp.options.methods[attrs[i].value])
+                    } else {
+                        console.error(`缺少方法:${attrs[i].value}`)
+                    }
+                } else {
+                    obj[attrs[i].name] = attrs[i].value;
+                }
+
+            }
+            Object.assign(jp.data, obj)
+        }
+
+    }
+    this.log = function (l) {
+        console.log(l)
+    }
+
     this.escape2Html = function (str) {
         var arrEntities = { 'lt': '<', 'gt': '>', 'nbsp': ' ', 'amp': '&', 'quot': '"' };
         return str.replace(/&(lt|gt|nbsp|amp|quot);/ig, function (all, t) {
@@ -104,6 +139,7 @@ var JP = function (tagName, options) {
             var reg = /<%([^%>]+)?%>/g,
                 regOut = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g,
                 code = 'var r=[];\n',
+                match = undefined,
                 cursor = 0;
             if (JSON.stringify(data) === "{}") {
                 console.warn('无渲染数据');
@@ -125,4 +161,6 @@ var JP = function (tagName, options) {
         };
     };
 }
+
+export default JP
 

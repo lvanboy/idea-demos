@@ -1,7 +1,8 @@
 
+import JP from "./core.js";
 
 var List = new JP('j-list', {
-    root: "/Component",
+
     filename: "list",
     data() {
         return {
@@ -24,6 +25,15 @@ List.init(async function () {
     this.data.listData = data.data;
     return this;
 }.bind(List))
+
+
+
+
+
+
+
+
+
 
 
 
