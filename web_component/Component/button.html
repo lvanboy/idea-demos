@@ -89,6 +89,15 @@
             box-shadow: 0 2px 0 rgba(0, 0, 0, .045);
         }
 
+        [ghost] {
+            background-color: transparent !important;
+        }
+
+        [data-type="primary"][ghost] {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
         [data-type="danger"]:focus,
         [data-type="danger"]:hover {
             color: #fff;
@@ -109,13 +118,9 @@
         }
     </style>
     <div>
-        <button data-type="<% this.type %>" class="j-btn">
+        <button data-type="<% this.type %>" class="j-btn" ghost="<% this.host %>">
             <slot name="btn"></slot>
             <slot></slot>
         </button>
     </div>
 </template>
-
-<script>
-
-</script>

@@ -22,9 +22,13 @@
     <div class="list-container">
         <ul>
             <% for(var i = 0,len = this.listData.length ; i < len; i++) { %>
-            <li class="item-li"><% this.listData[i] %></li>
+            <li class="item-li">帅 <% this.listData[i] %></li>
             <% } %>
         </ul>
+        <j-icon></j-icon>
     </div>
 
 </template>
+<script type="module">
+    import "./icon.js";
+</script>

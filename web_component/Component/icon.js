@@ -1,12 +1,11 @@
 
-import JP from "./core.js";
+import JP from "./core-other.js";
 var Icon = new JP('j-icon', {
     filename: "icon",
 
 })
 
-Icon.init(function (self, template) {
-})
+
 
 
 

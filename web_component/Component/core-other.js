@@ -1,54 +1,62 @@
-
-
-
 var JP = function (tagName, options) {
     let jp = this;
 
     this.tagName = tagName;
     this.options = options;
-    this.options.root = this.options.root ? this.options.root : '/Component'
+    this.root = this.options.root ? this.options.root : '/Component/'
     this.data = this.options.data && this.options.data() || {};
     this.doc = "";
-    var component = this.options.filename || "index.html";
+    this.component = `${this.root}${this.options.filename}.html` || "index.html";
+
+
 
     this.supportsImports = function () {
         return 'import' in document.createElement('link');
     }
 
-    this.handleError = function (e) {
-        console.error("组件路径不存在!")
+    this.handleError = function (msg) {
+        console.error(msg)
     }
     this.init = function () {
-        if (this.supportsImports()) {
-            this.loadLink();
-            // Good to go!
-        } else {
-            // Use other libraries/require systems to load files.
-            console.error('当前浏览器不支持html-import特性')
-        }
+        this.loadComponent();
         return this;
     }
-    this.loadLink = function () {
-        let link = document.createElement('link');
-        let componentName = `/${component}.html`;
-        let self = this;
-        let content = null;
-        link.setAttribute('rel', 'import');
-        link.setAttribute('href', this.options.root + componentName);
-        link.onload = function handleLoad(e) {
-            content = document.querySelector(`[href *= "${componentName}"]`);
-            if (!!content) {
-                self.doc = content.import || "";
-            } else {
-                console.error('当前引用组件不存在!');
-            }
-            self.DefineComponent()
-        };
-        link.onerror = this.handleError;
-        document.head.appendChild(link)
+
+
+    this.loadComponent = async function () {
+        let res = await this.includeHTML();
+        if (res) {
+            this.template = res;
+            this.DefineComponent()
+        } else {
+            this.handleError('组件路径不存在!');
+        }
+
     }
 
 
+    this.includeHTML = function () {
+
+        return new Promise(function (resolve, reject) {
+
+            let xhttp = new XMLHttpRequest();
+            xhttp.open("GET", jp.component, true);
+            xhttp.send();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        resolve(this.responseText);
+                    } else if (this.status == 404) {
+                        reject(null)
+                    }
+                }
+            }
+            xhttp.onerror = function (err) {
+                console.log(err)
+            }
+
+        })
+    }
 
     this.DefineComponent = function () {
 
@@ -58,33 +66,15 @@ var JP = function (tagName, options) {
                 super();
             }
             async connectedCallback() {
-
-                var tplId = self.data && self.data.name || 'template';
-                if (tplId !== 'template') {
-                    tplId = `#${tplId}`;
-                }
-
-                var dom = self.doc.querySelector(tplId);
-                var template = "";
-                if (dom) {
-                    template = dom.content;
-                    self.template = template.querySelector(':not(style):not(script)');
-                } else {
-                    console.error('template is not exist');
-                    return;
-                }
                 //获取所有属性
                 self.mergeData.call(this);
                 const shadowRoot = this.attachShadow({ mode: "open" });
-                self.options.connected && await self.options.connected(self, this, template);
+
+                self.options.connected && await self.options.connected(self, this, self.template);
                 try {
-                    var page = self.render(self.escape2Html(self.template.innerHTML), self.data)
-                    var style = template.querySelector('style');
-                    var js = template.querySelector('script');
+                    var page = self.render(self.template, self.data)
+                    page = page.replace(/<template((.)*?)>/g, "");
                     shadowRoot.innerHTML = page
-                    // console.log(style.innerHTML + 'hello')
-                    style && shadowRoot.appendChild(style)
-                    js && shadowRoot.appendChild(js)
                     console.log(`${self.tagName}自定义标签已注册!!`);
                 } catch (err) {
                     console.error(err)
@@ -94,7 +84,7 @@ var JP = function (tagName, options) {
         })
     }
     this.mergeData = function () {
-        let attrs = "", eventName = "click";
+        let attrs = [], eventName = "";
         var obj = {};
         if (this.hasAttributes()) {
             attrs = this.attributes;
@@ -165,8 +155,9 @@ var JP = function (tagName, options) {
             return new Function(code.replace(/[\r\t\n]/g, '')).apply(data);
         };
     };
-    this.init()
+
+    this.init();
+
 }
 
 export default JP
-

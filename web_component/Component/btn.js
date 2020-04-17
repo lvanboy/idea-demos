@@ -1,21 +1,26 @@
 
-import JP from "./core.js";
+import JP from "./core-other.js";
 var Btn = new JP('j-btn', {
     filename: "button",
+    connected() {
+        console.log('自定义标签已插入');
+    },
     data() {
     },
     methods: {
         onClick(e) {
             console.log(e, 'click');
+        },
+        onFocus(e) {
+            console.log(e, 'focus')
         }
     }
 
 })
 
-Btn.init(function (self, template) {
-    //根据模板以及传入的属性，定制化
 
-}.bind(Btn))
+
+
 
 
 

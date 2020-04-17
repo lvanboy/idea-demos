@@ -7,17 +7,28 @@
     <title>Web Component
     </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.14/webcomponents-hi.js"></script>
-
+    <style>
+        j-list {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
+    <div style="margin-bottom:10px;">
+        <j-btn type="primary" @click="onClick" @focus="onFocus" ghost>
+            <j-icon color="#1890ff"></j-icon>提交
+        </j-btn>
+    </div>
 
-    <j-btn type="primary" @click="onClick">
-        <j-icon></j-icon>提交
-    </j-btn>
     <j-list></j-list>
-    <script src="./Component/index.js" type="module"></script>
 
+    <script src="./Component/index.js" type="module"></script>
+    <script>
+
+
+
+    </script>
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 
-import JP from "./core.js";
+import JP from "./core-other.js";
 
 var List = new JP('j-list', {
 
@@ -8,6 +8,12 @@ var List = new JP('j-list', {
         return {
             listData: []
         }
+    },
+    async connected(self, customTag, template) {
+
+        let data = await this.methods.getdata();
+        self.data.listData = data.data;
+        return this;
     },
     methods: {
         getdata() {
@@ -20,11 +26,8 @@ var List = new JP('j-list', {
     }
 })
 
-List.init(async function () {
-    let data = await this.options.methods.getdata();
-    this.data.listData = data.data;
-    return this;
-}.bind(List))
+
+
 
 
 

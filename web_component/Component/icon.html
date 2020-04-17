@@ -1,12 +1,15 @@
 <template id="icon">
     <style>
         .icon {
-            color: #fff;
             text-align: center;
             margin-right: 5px;
         }
     </style>
-    <div><span><i class="icon">✔</i></span></div>
+    <div style="display: inline-block;">
+        <span style="color: <% this.color %>">
+            <i class="icon">✔</i>
+        </span>
+    </div>
 
 </template>
 <script>
