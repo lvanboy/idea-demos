@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <ul id="ul"></ul>
+    <script>
+        var fragment = document.createDocumentFragment();
+        var element = document.getElementById('ul');
+        var browsers = ['firefox', 'chrome', 'opera', 'safrai', 'internet Explorer']
+        browsers.forEach(function (browser) {
+            var li = document.createElement('LI');
+            li.textContent = browser;
+            fragment.appendChild(li);
+        })
+        console.log(fragment.querySelector('li'))
+        element.appendChild(fragment)
+
+        /*Element+Inner+Clone*/
+        var domString2DOM = (function () {
+            var container;
+            if (window.HTMLTemplateElement) {
+                container = document.createElement('template');
+            } else {
+                container = document.createElement('div');
+            }
+            return function (DOMstring) {
+                container.innerHTML = DOMstring;
+                return container.content.firstChild.cloneNode(true) || container.firstChild.cloneNode(true);
+            }
+        })()
+
+        var app = domString2DOM(/*html*/`<ul class="tree"></ul>`)
+        console.log(app)
+        for (let i = 0; i < 5; i++) {
+            var html = /*html*/`<li class="li-item">GG||MM</li>`
+            app.appendChild(domString2DOM(html))
+        }
+        document.body.appendChild(app)
+
+
+        var XMLParser = (function () {
+            var domParser = new DOMParser();
+            return function (domstring) {
+                if (domstring[0] === "<") {
+                    var doc = domParser.parseFromString(domstring, "application/xhtml+xml")
+                    return doc.firstChild;
+                } else {
+                    return document.createTextNode(domstring)
+                }
+            }
+        })()
+        var tree = XMLParser(`<ul class="tree"></ul>`)
+        for (let i = 0; i < 5; i++) {
+            tree.appendChild(XMLParser('<li class="li-item">light</li>'))
+        }
+        document.body.appendChild(tree)
+
+        var template = document.createElement('ul');
+        template.innerHTML = `
+            ${
+            (function () {
+                var arr = [];
+                for (let i = 0; i < 5; i++) {
+                    arr.push("<li class='li-item'>GOOD</li>")
+                }
+                return arr.join("");
+            })()
+            } 
+        `
+        document.body.appendChild(template)
+    </script>
+</body>
+
+</html>
